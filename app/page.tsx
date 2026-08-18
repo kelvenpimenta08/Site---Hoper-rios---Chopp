@@ -63,9 +63,17 @@ export default function Home() {
     <div className="page-progress" aria-hidden="true"><i style={{ height: `${progress * 100}%` }}></i></div>
     <section className="hero" id="top">
       <nav className="capsule-nav"><a className="logo-image" href="#top"><img src="/hoperarios-wordmark-clean.png" alt="Hoperários Cervejaria"/></a><div className="nav-links"><a href="#chopes">Chopes</a><a href="#momentos">Momentos</a><a href="#calculadora">Calculadora</a><a className="nav-cta" href={baseWa} target="_blank">Reservar barril ↗</a></div></nav>
-      <div className="grain"></div><div className="orbit orbit-a"></div><div className="orbit orbit-b"></div><div className="hero-word" aria-hidden="true">HOPERÁRIOS</div>
-      <div className="hero-copy"><p className="kicker">Cervejaria própria • Volta Redonda/RJ</p><h1>O chopp da fonte.<br/><em>Na sua festa.</em></h1><p>Kit completo instalado no local: barril, chopeira regulada, gás e atendimento de quem produz o próprio chopp.</p><div className="hero-actions"><a className="button gold" href={baseWa} target="_blank">Quero meu barril <b>↗</b></a><a className="round-link" href="#chopes" aria-label="Conhecer os chopes">↓</a></div></div>
-      <div className="hero-meta"><span><b>30L</b> ou <b>50L</b></span><span>Instalação<br/>inclusa</span><span>Atendimento<br/>até 23h*</span></div>
+      <div className="grain"></div><div className="orbit orbit-a"></div><div className="orbit orbit-b"></div>
+      <div className="hero-layout">
+        <div className="hero-word" aria-hidden="true">HOPERÁRIOS</div>
+        <div className="hero-copy">
+          <p className="kicker">Cervejaria própria • Volta Redonda/RJ</p>
+          <h1>O chopp da fonte.<br/><em>Na sua festa.</em></h1>
+          <p>Kit completo instalado no local: barril, chopeira regulada, gás e atendimento de quem produz o próprio chopp.</p>
+          <div className="hero-actions"><a className="button gold" href={baseWa} target="_blank">Quero meu barril <b>↗</b></a><a className="round-link" href="#chopes" aria-label="Conhecer os chopes">↓</a></div>
+          <div className="hero-meta"><span><b>30L</b> ou <b>50L</b></span><span>Instalação<br/>inclusa</span><span>Atendimento<br/>até 23h*</span></div>
+        </div>
+      </div>
       <a className="scroll-cue" href="#chopes"><span>Role para servir</span><i></i></a>
     </section>
 

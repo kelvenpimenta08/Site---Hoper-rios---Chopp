@@ -17,10 +17,10 @@
 .age-card>img{display:block;width:min(360px,88%);height:125px;margin:0 auto 4px;object-fit:contain;object-position:center;mix-blend-mode:normal}
 @media(max-width:580px){.logo-image{width:145px;height:40px}.age-card>img{height:105px}}
 /* Optical alignment inside the floating navigation */
-.capsule-nav .logo-image{position:absolute;left:24px;top:50%;transform:translateY(-50%);width:190px;height:48px;overflow:hidden}
-.capsule-nav .logo-image img{width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;object-position:center;transform:scale(.9);transform-origin:center}
+.capsule-nav .logo-image{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:150px;height:54px;display:grid;place-items:center;overflow:visible}
+.capsule-nav .logo-image img{display:block;width:auto;height:52px;max-width:100%;max-height:52px;object-fit:contain;object-position:center;transform:none}
 .capsule-nav .nav-links{margin-left:auto}
-@media(max-width:580px){.capsule-nav .logo-image{left:10px;width:145px;height:40px}.capsule-nav .logo-image img{transform:scale(.88)}}
+@media(max-width:580px){.capsule-nav .logo-image{left:8px;width:112px;height:44px}.capsule-nav .logo-image img{width:auto;height:42px;max-height:42px;transform:none}}
 /* Hero composition: one responsive flow, with no independently stacked text blocks. */
 .hero{min-height:max(620px,100svh)}
 .hero-layout{position:absolute;z-index:2;inset:104px 24px 34px;display:flex;flex-direction:column;justify-content:flex-end;pointer-events:none}

@@ -28,12 +28,37 @@ const faqs = [
   ["Quanto chopp devo pedir?", "A calculadora dá uma estimativa inicial. O consumo muda conforme duração, perfil dos convidados e outras bebidas; confirmamos tudo no atendimento."],
 ];
 
+const recommendBarrels = (targetLiters: number) => {
+  let best = { count30: 0, count50: Math.ceil(targetLiters / 50), capacity: Math.ceil(targetLiters / 50) * 50 };
+  const limit = Math.ceil(targetLiters / 30) + 1;
+
+  for (let count30 = 0; count30 <= limit; count30++) {
+    for (let count50 = 0; count50 <= limit; count50++) {
+      const capacity = count30 * 30 + count50 * 50;
+      if (capacity < targetLiters || capacity === 0) continue;
+      const barrelCount = count30 + count50;
+      const bestCount = best.count30 + best.count50;
+      if (barrelCount < bestCount || (barrelCount === bestCount && capacity < best.capacity)) {
+        best = { count30, count50, capacity };
+      }
+    }
+  }
+
+  const parts = [
+    best.count50 ? `${best.count50} ${best.count50 === 1 ? "barril" : "barris"} de 50 L` : "",
+    best.count30 ? `${best.count30} ${best.count30 === 1 ? "barril" : "barris"} de 30 L` : "",
+  ].filter(Boolean);
+
+  return { ...best, label: parts.join(" + ") };
+};
+
 export default function Home() {
   const [ageOk, setAgeOk] = useState(false);
   const [beer, setBeer] = useState(0);
   const [moment, setMoment] = useState(0);
   const [people, setPeople] = useState(50);
   const [hours, setHours] = useState(4);
+  const [extendedHours, setExtendedHours] = useState(false);
   const [openFaq, setOpenFaq] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [progress, setProgress] = useState(0);
@@ -53,9 +78,20 @@ export default function Home() {
   }, []);
 
   const liters = useMemo(() => Math.ceil(people * hours * .35 / 10) * 10, [people, hours]);
-  const barrels = liters <= 30 ? "1 barril de 30 L" : liters <= 50 ? "1 barril de 50 L" : `${Math.ceil(liters / 50)} barris de 50 L`;
-  const calcWa = wa(`Olá! Fiz o cálculo no site para ${people} pessoas por ${hours} horas. A estimativa foi ${liters} L (${barrels}). Quero confirmar meu orçamento.`);
+  const safeTarget = useMemo(() => Math.ceil(liters * 1.1 / 10) * 10, [liters]);
+  const recommendation = useMemo(() => recommendBarrels(safeTarget), [safeTarget]);
+  const safetyMargin = recommendation.capacity - liters;
+  const calcWa = wa(`Olá! Fiz o cálculo no site para ${people} pessoas por ${hours} horas. O consumo estimado foi ${liters} L e a recomendação segura foi ${recommendation.label} (${recommendation.capacity} L disponíveis, com ${safetyMargin} L de margem). Quero confirmar meu orçamento.`);
   const selectBeer = (next: number) => setBeer((next + chopes.length) % chopes.length);
+  const toggleExtendedHours = () => {
+    if (extendedHours) {
+      setHours(Math.min(hours, 10));
+      setExtendedHours(false);
+      return;
+    }
+    setHours(Math.max(hours, 12));
+    setExtendedHours(true);
+  };
 
   return <main>
     {!ageOk && <div className="age-gate" role="dialog" aria-modal="true" aria-labelledby="age-title"><div className="age-card"><img src="/hoperarios-wordmark-clean.png" alt="Hoperários Cervejaria"/><p className="kicker">Conteúdo para maiores</p><h2 id="age-title">Você tem mais de 18 anos?</h2><p>Este site contém informações sobre bebidas alcoólicas.</p><div className="age-actions"><button autoFocus onClick={() => setAgeOk(true)}>Sim, tenho 18 anos ou mais</button><a href="https://www.google.com">Não, quero sair</a></div><small>Beba com moderação. Venda proibida para menores de 18 anos.</small></div></div>}
@@ -102,7 +138,7 @@ export default function Home() {
 
     <section className="how reveal"><p className="kicker">É simples assim</p><h2>Do pedido ao primeiro copo.</h2><div className="steps">{[["01","Faça o pedido","Conte data, local e número de convidados pelo WhatsApp."],["02","Preparamos","Separamos o estilo, volume e equipamento para seu evento."],["03","Entregamos e instalamos","Levamos o kit e deixamos a chopeira regulada."],["04","Curta o momento","Abra a torneira, sirva no ponto e aproveite a festa."]].map(x => <article key={x[0]}><b>{x[0]}</b><div></div><h3>{x[1]}</h3><p>{x[2]}</p></article>)}</div></section>
 
-    <section className="calculator reveal" id="calculadora"><div className="calc-intro"><p className="kicker">Calculadora de chopp</p><h2>Quanto vai<br/><i>precisar?</i></h2><p>Estimativa rápida considerando 350 ml por pessoa/hora. Depois, a equipe ajusta pelo perfil do seu evento.</p></div><div className="calc-card"><label><span>Quantas pessoas?</span><strong>{people}</strong><input type="range" min="10" max="250" step="10" value={people} onChange={e => setPeople(+e.target.value)}/><small><i>10</i><i>250</i></small></label><label><span>Quantas horas?</span><strong>{hours}h</strong><input type="range" min="2" max="10" value={hours} onChange={e => setHours(+e.target.value)}/><small><i>2h</i><i>10h</i></small></label><div className="result"><small>Estimativa inicial</small><b>{liters} litros</b><span>{barrels}</span></div><a className="button gold" href={calcWa} target="_blank">Levar cálculo ao WhatsApp ↗</a></div></section>
+    <section className="calculator reveal" id="calculadora"><div className="calc-intro"><p className="kicker">Calculadora de chopp</p><h2>Quanto vai<br/><i>precisar?</i></h2><p>Estimativa rápida considerando o perfil do evento. A equipe confirma tudo com você antes do pedido.</p><div className="calc-method"><span><b>350 ml</b> por pessoa/hora</span><span><b>+10%</b> de margem segura</span></div></div><div className="calc-card"><label><span>Quantas pessoas?</span><strong>{people}</strong><input aria-label="Número de pessoas" type="range" min="10" max="250" step="10" value={people} onChange={e => setPeople(+e.target.value)}/><small><i>10</i><i>250</i></small></label><label><span>Quantas horas?</span><strong>{hours}h</strong><input aria-label="Duração do evento em horas" type="range" min="2" max={extendedHours ? "24" : "10"} value={hours} onChange={e => setHours(+e.target.value)}/><small><i>2h</i><i>{extendedHours ? "24h" : "10h"}</i></small></label><div className="range-more"><button type="button" aria-pressed={extendedHours} onClick={toggleExtendedHours}>{extendedHours ? "Voltar para até 10h" : "Evento com mais de 10h? Calcular até 24h"} <b>{extendedHours ? "−" : "+"}</b></button>{extendedHours && <small>Para eventos acima de 24h, fale com a equipe no WhatsApp.</small>}</div><div className="result"><small>Consumo estimado</small><b>{liters} litros</b><div className="recommendation"><small>Recomendação segura</small><strong>{recommendation.label}</strong><span>{recommendation.capacity} L disponíveis · {safetyMargin} L de margem</span></div></div><div className="calc-benefits" aria-label="Benefícios inclusos"><span>✓ Chopeira inclusa</span><span>✓ Gás reserva</span><span>✓ Instalação no local</span></div><a className="button gold" href={calcWa} target="_blank">Levar cálculo ao WhatsApp ↗</a></div></section>
 
     <section className="faq reveal"><div><p className="kicker">Dúvidas frequentes</p><h2>Antes de abrir<br/><i>a torneira.</i></h2></div><div className="faq-list">{faqs.map((f, i) => <article key={f[0]}><button onClick={() => setOpenFaq(openFaq === i ? -1 : i)} aria-expanded={openFaq === i}><span>{f[0]}</span><b>{openFaq === i ? "−" : "+"}</b></button>{openFaq === i && <p>{f[1]}</p>}</article>)}</div></section>
 

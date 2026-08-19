@@ -28,6 +28,12 @@ const faqs = [
   ["Quanto chopp devo pedir?", "A calculadora dá uma estimativa inicial. O consumo muda conforme duração, perfil dos convidados e outras bebidas; confirmamos tudo no atendimento."],
 ];
 
+const consumptionProfiles = [
+  { label: "Tranquilo", rate: 350, note: "Consumo leve" },
+  { label: "Clássico", rate: 500, note: "Média recomendada" },
+  { label: "Animado", rate: 650, note: "Turma que bebe mais" },
+];
+
 const recommendBarrels = (targetLiters: number) => {
   let best = { count30: 0, count50: Math.ceil(targetLiters / 50), capacity: Math.ceil(targetLiters / 50) * 50 };
   const limit = Math.ceil(targetLiters / 30) + 1;
@@ -58,6 +64,9 @@ export default function Home() {
   const [moment, setMoment] = useState(0);
   const [people, setPeople] = useState(50);
   const [hours, setHours] = useState(4);
+  const [drinkingShare, setDrinkingShare] = useState(70);
+  const [consumptionRate, setConsumptionRate] = useState(500);
+  const [extendedPeople, setExtendedPeople] = useState(false);
   const [extendedHours, setExtendedHours] = useState(false);
   const [openFaq, setOpenFaq] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -77,12 +86,22 @@ export default function Home() {
     return () => removeEventListener("scroll", scroll);
   }, []);
 
-  const liters = useMemo(() => Math.ceil(people * hours * .35 / 10) * 10, [people, hours]);
+  const drinkingPeople = useMemo(() => Math.ceil(people * drinkingShare / 100), [people, drinkingShare]);
+  const liters = useMemo(() => Math.ceil(drinkingPeople * hours * consumptionRate / 1000 / 10) * 10, [drinkingPeople, hours, consumptionRate]);
   const safeTarget = useMemo(() => Math.ceil(liters * 1.1 / 10) * 10, [liters]);
   const recommendation = useMemo(() => recommendBarrels(safeTarget), [safeTarget]);
   const safetyMargin = recommendation.capacity - liters;
-  const calcWa = wa(`Olá! Fiz o cálculo no site para ${people} pessoas por ${hours} horas. O consumo estimado foi ${liters} L e a recomendação segura foi ${recommendation.label} (${recommendation.capacity} L disponíveis, com ${safetyMargin} L de margem). Quero confirmar meu orçamento.`);
+  const calcWa = wa(`Olá! Fiz o cálculo no site para ${people} convidados por ${hours} horas. Considerei ${drinkingShare}% bebendo chopp (${drinkingPeople} pessoas), no perfil de ${consumptionRate} ml por pessoa/hora. O consumo estimado foi ${liters} L e a recomendação segura foi ${recommendation.label} (${recommendation.capacity} L disponíveis, com ${safetyMargin} L de margem). Quero confirmar meu orçamento.`);
   const selectBeer = (next: number) => setBeer((next + chopes.length) % chopes.length);
+  const toggleExtendedPeople = () => {
+    if (extendedPeople) {
+      setPeople(Math.min(people, 250));
+      setExtendedPeople(false);
+      return;
+    }
+    setPeople(Math.max(people, 300));
+    setExtendedPeople(true);
+  };
   const toggleExtendedHours = () => {
     if (extendedHours) {
       setHours(Math.min(hours, 10));
@@ -138,7 +157,7 @@ export default function Home() {
 
     <section className="how reveal"><p className="kicker">É simples assim</p><h2>Do pedido ao primeiro copo.</h2><div className="steps">{[["01","Faça o pedido","Conte data, local e número de convidados pelo WhatsApp."],["02","Preparamos","Separamos o estilo, volume e equipamento para seu evento."],["03","Entregamos e instalamos","Levamos o kit e deixamos a chopeira regulada."],["04","Curta o momento","Abra a torneira, sirva no ponto e aproveite a festa."]].map(x => <article key={x[0]}><b>{x[0]}</b><div></div><h3>{x[1]}</h3><p>{x[2]}</p></article>)}</div></section>
 
-    <section className="calculator reveal" id="calculadora"><div className="calc-intro"><p className="kicker">Calculadora de chopp</p><h2>Quanto vai<br/><i>precisar?</i></h2><p>Estimativa rápida considerando o perfil do evento. A equipe confirma tudo com você antes do pedido.</p><div className="calc-method"><span><b>350 ml</b> por pessoa/hora</span><span><b>+10%</b> de margem segura</span></div></div><div className="calc-card"><label><span>Quantas pessoas?</span><strong>{people}</strong><input aria-label="Número de pessoas" type="range" min="10" max="250" step="10" value={people} onChange={e => setPeople(+e.target.value)}/><small><i>10</i><i>250</i></small></label><label><span>Quantas horas?</span><strong>{hours}h</strong><input aria-label="Duração do evento em horas" type="range" min="2" max={extendedHours ? "24" : "10"} value={hours} onChange={e => setHours(+e.target.value)}/><small><i>2h</i><i>{extendedHours ? "24h" : "10h"}</i></small></label><div className="range-more"><button type="button" aria-pressed={extendedHours} onClick={toggleExtendedHours}>{extendedHours ? "Voltar para até 10h" : "Evento com mais de 10h? Calcular até 24h"} <b>{extendedHours ? "−" : "+"}</b></button>{extendedHours && <small>Para eventos acima de 24h, fale com a equipe no WhatsApp.</small>}</div><div className="result"><small>Consumo estimado</small><b>{liters} litros</b><div className="recommendation"><small>Recomendação segura</small><strong>{recommendation.label}</strong><span>{recommendation.capacity} L disponíveis · {safetyMargin} L de margem</span></div></div><div className="calc-benefits" aria-label="Benefícios inclusos"><span>✓ Chopeira inclusa</span><span>✓ Gás reserva</span><span>✓ Instalação no local</span></div><a className="button gold" href={calcWa} target="_blank">Levar cálculo ao WhatsApp ↗</a></div></section>
+    <section className="calculator reveal" id="calculadora"><div className="calc-intro"><p className="kicker">Calculadora de chopp</p><h2>Quanto vai<br/><i>precisar?</i></h2><p>Nem todo convidado bebe igual. Ajuste o público, a duração e o perfil da sua turma para chegar mais perto do consumo real.</p><div className="calc-method"><span><b>{drinkingPeople}</b> pessoas bebendo</span><span><b>+10%</b> de margem segura</span></div></div><div className="calc-card"><div className="calc-primary"><div className="calc-control"><label><span>Quantas pessoas?</span><strong>{people}</strong><input aria-label="Número de pessoas" type="range" min="10" max={extendedPeople ? "1000" : "250"} step={extendedPeople ? "50" : "10"} value={people} onChange={e => setPeople(+e.target.value)}/><small><i>10</i><i>{extendedPeople ? "1.000" : "250"}</i></small></label><div className="range-more"><button type="button" aria-pressed={extendedPeople} onClick={toggleExtendedPeople}>{extendedPeople ? "Voltar para até 250" : "Mais de 250? Calcular até 1.000"} <b>{extendedPeople ? "−" : "+"}</b></button>{extendedPeople && <small>Acima de 1.000 pessoas, confirme a estrutura pelo WhatsApp.</small>}</div></div><div className="calc-control"><label><span>Quantas horas?</span><strong>{hours}h</strong><input aria-label="Duração do evento em horas" type="range" min="2" max={extendedHours ? "24" : "10"} value={hours} onChange={e => setHours(+e.target.value)}/><small><i>2h</i><i>{extendedHours ? "24h" : "10h"}</i></small></label><div className="range-more"><button type="button" aria-pressed={extendedHours} onClick={toggleExtendedHours}>{extendedHours ? "Voltar para até 10h" : "Mais de 10h? Calcular até 24h"} <b>{extendedHours ? "−" : "+"}</b></button>{extendedHours && <small>Acima de 24h, confirme a operação pelo WhatsApp.</small>}</div></div></div><label className="drinking-control"><span>Quantos convidados bebem chopp?</span><strong>{drinkingShare}% <small>≈ {drinkingPeople} pessoas</small></strong><input aria-label="Percentual de convidados que bebem chopp" type="range" min="20" max="100" step="5" value={drinkingShare} onChange={e => setDrinkingShare(+e.target.value)}/><small><i>20%</i><i>100%</i></small></label><fieldset className="consumption-profile"><legend>Como é o consumo da turma?</legend><div>{consumptionProfiles.map(profile => <button type="button" key={profile.rate} className={consumptionRate === profile.rate ? "active" : ""} aria-pressed={consumptionRate === profile.rate} onClick={() => setConsumptionRate(profile.rate)}><b>{profile.label}</b><span>{profile.rate} ml/h</span><small>{profile.note}</small></button>)}</div></fieldset><div className="result"><small>Consumo estimado</small><b>{liters} litros</b><div className="recommendation"><small>Recomendação segura</small><strong>{recommendation.label}</strong><span>{recommendation.capacity} L disponíveis · {safetyMargin} L de margem</span></div></div><div className="calc-benefits" aria-label="Benefícios inclusos"><span>✓ Chopeira inclusa</span><span>✓ Gás reserva</span><span>✓ Instalação no local</span></div><a className="button gold" href={calcWa} target="_blank">Levar cálculo ao WhatsApp ↗</a></div></section>
 
     <section className="faq reveal"><div><p className="kicker">Dúvidas frequentes</p><h2>Antes de abrir<br/><i>a torneira.</i></h2></div><div className="faq-list">{faqs.map((f, i) => <article key={f[0]}><button onClick={() => setOpenFaq(openFaq === i ? -1 : i)} aria-expanded={openFaq === i}><span>{f[0]}</span><b>{openFaq === i ? "−" : "+"}</b></button>{openFaq === i && <p>{f[1]}</p>}</article>)}</div></section>
 

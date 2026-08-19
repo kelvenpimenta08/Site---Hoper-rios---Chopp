@@ -47,8 +47,7 @@
 .care-icon--temperature i{width:11px;height:28px;margin-top:-4px;border:2px solid var(--gold);border-radius:7px}
 .care-icon--temperature i:before{left:-4px;bottom:-8px;width:15px;height:15px;border:2px solid var(--gold);border-radius:50%;background:#0b3532}
 .care-icon--temperature i:after{left:2px;bottom:1px;width:3px;height:18px;border-radius:3px;background:var(--gold)}
-.care-icon--temperature i span:before{left:17px;top:6px;width:12px;height:2px;background:var(--gold);transform:rotate(45deg)}
-.care-icon--temperature i span:after{left:22px;top:1px;width:2px;height:12px;background:var(--gold);transform:rotate(45deg)}
+.care-icon--temperature i span{display:none}
 .care-icon--cylinder i{width:20px;height:31px;border:2px solid var(--gold);border-radius:9px 9px 5px 5px}
 .care-icon--cylinder i:before{left:5px;top:-8px;width:7px;height:7px;border:2px solid var(--gold);border-bottom:0;border-radius:3px 3px 0 0}
 .care-icon--cylinder i:after{left:3px;right:3px;top:8px;height:2px;background:var(--gold);box-shadow:0 10px 0 var(--gold)}
@@ -58,4 +57,8 @@
 .care-icon--delivery i span:before,.care-icon--delivery i span:after{bottom:-8px;width:8px;height:8px;border:2px solid var(--gold);border-radius:50%;background:#0b3532}
 .care-icon--delivery i span:before{left:2px}.care-icon--delivery i span:after{left:27px}
 .care-grid article:hover .care-icon--temperature i:before,.care-grid article:hover .care-icon--delivery i span:before,.care-grid article:hover .care-icon--delivery i span:after{background:var(--cream)}
+.care-grid article{display:flex;flex-direction:column}
+.care-grid h3{display:flex;align-items:flex-start;min-height:58px;margin:0 0 8px}
+.care-grid p{margin:0}
+@media(max-width:580px){.care-grid h3{min-height:0}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}

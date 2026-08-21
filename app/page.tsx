@@ -124,7 +124,35 @@ function DraftStaticRender({ name, color }: { name: string; color: string }) {
 
       canvasRef.current.width = width;
       canvasRef.current.height = height;
-      canvasRef.current.getContext("2d")?.putImageData(imageData, 0, 0);
+      const canvasContext = canvasRef.current.getContext("2d");
+      if (!canvasContext) return;
+      canvasContext.putImageData(imageData, 0, 0);
+
+      const wordmark = new Image();
+      wordmark.onload = () => {
+        if (cancelled || !canvasRef.current) return;
+        const ink = document.createElement("canvas");
+        ink.width = wordmark.naturalWidth;
+        ink.height = wordmark.naturalHeight;
+        const inkContext = ink.getContext("2d");
+        if (!inkContext) return;
+        inkContext.drawImage(wordmark, 0, 0);
+        inkContext.globalCompositeOperation = "source-in";
+        inkContext.fillStyle = "#050706";
+        inkContext.fillRect(0, 0, ink.width, ink.height);
+
+        const logoWidth = width * .19;
+        const logoHeight = logoWidth * wordmark.naturalHeight / wordmark.naturalWidth;
+        canvasContext.save();
+        canvasContext.translate(width * .5, height * .625);
+        canvasContext.rotate(-.035);
+        canvasContext.transform(1, 0, -.035, .88, 0, 0);
+        canvasContext.globalAlpha = .78;
+        canvasContext.globalCompositeOperation = "multiply";
+        canvasContext.drawImage(ink, -logoWidth / 2, -logoHeight / 2, logoWidth, logoHeight);
+        canvasContext.restore();
+      };
+      wordmark.src = "/hoperarios-wordmark-clean.png";
     };
 
     image.src = "/chopp-tap-3d-v1.png";

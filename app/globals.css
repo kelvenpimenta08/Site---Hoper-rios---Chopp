@@ -153,3 +153,17 @@
 @keyframes foamBloom{0%,18%{opacity:0;transform:scale(.5)}58%,82%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(1.08)}}
 @media(max-width:920px){.glass-cover,.empty-glass{left:37.5%;width:25%}.kit-stamp{left:6%;bottom:9%}}
 @media(max-width:580px){.glass-cover,.empty-glass{left:37%;top:42%;width:27%;height:56%}.stream-cover{left:42%;top:27%;width:11%;height:18%}.pour-light{left:46.5%;top:29%;height:14%}.render-stage:after{left:44%;top:41.7%;width:11%}.kit-stamp{left:0;bottom:4%;min-width:168px;padding:9px 11px}.kit-stamp b{font-size:7px}.kit-stamp small{font-size:5.6px}}
+
+/* Pixel-extracted transparent render layers: base, rising beer and real stream. */
+.draft-render,.glass-cover,.empty-glass,.stream-cover,.pour-light{display:none!important}
+.render-stage{overflow:visible;background:transparent;isolation:isolate}
+.render-stage:after{display:none}
+.render-layer{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;background:transparent;filter:drop-shadow(0 34px 32px #0008)}
+.render-base{z-index:1;animation:canvasArrive .7s cubic-bezier(.2,.85,.25,1) both}
+.render-fill{z-index:2;clip-path:inset(100% 0 0);animation:canvasFill 3.35s .18s cubic-bezier(.2,.68,.2,1) forwards}
+.render-stream{z-index:3;opacity:0;clip-path:inset(0 0 100%);animation:canvasPour 3.45s .08s ease forwards}
+.beer-visual--2 .render-fill,.beer-visual--2 .render-stream{filter:hue-rotate(5deg) brightness(1.05) saturate(1.05) drop-shadow(0 34px 32px #0008)}
+.beer-visual--3 .render-fill,.beer-visual--3 .render-stream{filter:hue-rotate(-20deg) saturate(1.38) contrast(1.06) drop-shadow(0 34px 32px #0008)}
+@keyframes canvasArrive{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes canvasFill{0%,10%{clip-path:inset(100% 0 0)}100%{clip-path:inset(0 0 0)}}
+@keyframes canvasPour{0%,7%{opacity:0;clip-path:inset(0 0 100%)}14%{opacity:1;clip-path:inset(0 0 0)}80%{opacity:1;clip-path:inset(0 0 0)}100%{opacity:0;clip-path:inset(0 0 0)}}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const phone = "5524998820572";
 const wa = (text: string) => `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
@@ -57,6 +57,71 @@ const recommendBarrels = (targetLiters: number) => {
 
   return { ...best, label: parts.join(" + ") };
 };
+
+function DraftPourRender({ name }: { name: string }) {
+  const baseRef = useRef<HTMLCanvasElement>(null);
+  const fillRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const image = new Image();
+
+    image.onload = () => {
+      if (cancelled || !baseRef.current || !fillRef.current || !streamRef.current) return;
+      const width = image.naturalWidth;
+      const height = image.naturalHeight;
+      const source = document.createElement("canvas");
+      source.width = width;
+      source.height = height;
+      const sourceContext = source.getContext("2d", { willReadFrequently: true });
+      if (!sourceContext) return;
+      sourceContext.drawImage(image, 0, 0);
+      const pixels = sourceContext.getImageData(0, 0, width, height).data;
+      const basePixels = new Uint8ClampedArray(pixels.length);
+      const fillPixels = new Uint8ClampedArray(pixels.length);
+      const streamPixels = new Uint8ClampedArray(pixels.length);
+
+      for (let y = 0; y < height; y++) {
+        const glassProgress = Math.max(0, Math.min(1, (y / height - .425) / .54));
+        const glassLeft = (.382 + glassProgress * .055) * width;
+        const glassRight = (.622 - glassProgress * .055) * width;
+
+        for (let x = 0; x < width; x++) {
+          const offset = (y * width + x) * 4;
+          const red = pixels[offset];
+          const green = pixels[offset + 1];
+          const blue = pixels[offset + 2];
+          const brightness = Math.max(red, green, blue);
+          const alpha = brightness < 12 ? 0 : Math.min(255, (brightness - 10) * 3.3);
+          if (!alpha) continue;
+
+          const inGlass = y > height * .425 && y < height * .975 && x > glassLeft && x < glassRight;
+          const inStreamArea = y > height * .27 && y < height * .445 && x > width * .41 && x < width * .53;
+          const isGoldenStream = inStreamArea && red > 70 && red > blue * 1.45 && green > blue * 1.25;
+          const target = isGoldenStream ? streamPixels : inGlass ? fillPixels : basePixels;
+          const visibleScale = alpha < 255 ? 255 / alpha : 1;
+          target[offset] = Math.min(255, red * visibleScale);
+          target[offset + 1] = Math.min(255, green * visibleScale);
+          target[offset + 2] = Math.min(255, blue * visibleScale);
+          target[offset + 3] = alpha;
+        }
+      }
+
+      [[baseRef.current, basePixels], [fillRef.current, fillPixels], [streamRef.current, streamPixels]].forEach(([canvas, data]) => {
+        const targetCanvas = canvas as HTMLCanvasElement;
+        targetCanvas.width = width;
+        targetCanvas.height = height;
+        targetCanvas.getContext("2d")?.putImageData(new ImageData(data as Uint8ClampedArray, width, height), 0, 0);
+      });
+    };
+
+    image.src = "/chopp-tap-3d-v1.png";
+    return () => { cancelled = true; };
+  }, []);
+
+  return <div className="render-stage" role="img" aria-label={`Render 3D de uma torneira enchendo um copo de ${name}`}><canvas className="render-layer render-base" ref={baseRef}/><canvas className="render-layer render-fill" ref={fillRef}/><canvas className="render-layer render-stream" ref={streamRef}/></div>;
+}
 
 export default function Home() {
   const [ageOk, setAgeOk] = useState(false);
@@ -138,7 +203,7 @@ export default function Home() {
       <div className="showcase-heading"><p className="kicker">Arraste. Escolha. Brinde.</p><h2>Um chopp de cada vez.<br/><i>Todos memoráveis.</i></h2></div>
       <div className="beer-stage" onTouchStart={e => setTouchStart(e.touches[0].clientX)} onTouchEnd={e => { if (touchStart === null) return; const d = e.changedTouches[0].clientX - touchStart; if (Math.abs(d) > 45) selectBeer(beer + (d < 0 ? 1 : -1)); setTouchStart(null); }}>
         <button className="slide-arrow prev" onClick={() => selectBeer(beer - 1)} aria-label="Chopp anterior">←</button>
-        <div className={`beer-visual beer-visual--${beer + 1}`} key={beer}><span className="liquid-type">{chopes[beer].type}</span><div className="render-stage" role="img" aria-label={`Render 3D de uma torneira enchendo um copo de ${chopes[beer].name}`}><img className="draft-render" src="/chopp-tap-3d-v1.png" alt=""/><span className="glass-cover" aria-hidden="true"></span><span className="empty-glass" aria-hidden="true"></span><span className="stream-cover" aria-hidden="true"></span><span className="pour-light" aria-hidden="true"></span></div><div className="kit-stamp"><span className="kit-mark">✓</span><span><small>Kit completo instalado</small><b>Barril · Chopeira · Gás</b></span></div><div className="beer-index">0{beer + 1}</div></div>
+        <div className={`beer-visual beer-visual--${beer + 1}`} key={beer}><span className="liquid-type">{chopes[beer].type}</span><DraftPourRender name={chopes[beer].name}/><div className="kit-stamp"><span className="kit-mark">✓</span><span><small>Kit completo instalado</small><b>Barril · Chopeira · Gás</b></span></div><div className="beer-index">0{beer + 1}</div></div>
         <article className="beer-details" key={chopes[beer].name}><p className="kicker">{chopes[beer].type}</p><h3>{chopes[beer].name}</h3><p>{chopes[beer].desc}</p><div className="beer-specs"><span><small>Teor</small><b>{chopes[beer].abv}</b></span><span><small>Serviço</small><b>{chopes[beer].temp}</b></span></div><div className="beer-prices"><span><small>30 litros</small><b>{chopes[beer].p30}</b></span><span><small>50 litros</small><b>{chopes[beer].p50}</b></span></div><a className="button gold" href={wa(`Olá! Quero um orçamento do chopp ${chopes[beer].name} para meu evento.`)} target="_blank">Pedir este chopp ↗</a></article>
         <button className="slide-arrow next" onClick={() => selectBeer(beer + 1)} aria-label="Próximo chopp">→</button>
       </div>

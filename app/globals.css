@@ -125,3 +125,31 @@
 @keyframes fillBubble{from{transform:translateY(0) scale(.7);opacity:0}18%{opacity:.9}to{transform:translateY(-260px) scale(1.2);opacity:0}}
 @media(max-width:920px){.tap-pipe{left:-5%;width:57%;height:61px}.tap-hub{left:43%;width:79px;height:77px}.tap-handle{left:50%}.tap-spout{left:51%;height:128px}.beer-flow{left:56.3%;top:38.5%}.glass-wrap{left:56%;top:49%;height:49%}.kit-stamp{bottom:10%;min-width:205px}}
 @media(max-width:580px){.tap-pipe{left:-20%;top:14%;width:70%;height:48px}.tap-hub{left:41%;top:12.5%;width:61px;height:58px}.tap-handle{left:47%;top:1%;width:18px;height:82px}.tap-handle:before{width:34px;height:48px;top:-13px}.tap-spout{left:49%;top:22%;width:27px;height:93px}.beer-flow{left:54.8%;top:39%;width:6px;height:12%}.glass-wrap{left:55%;top:49%;width:126px;height:48%}.kit-stamp{left:-3%;bottom:5%;min-width:175px;padding:10px 13px;gap:8px}.kit-mark{flex-basis:27px;height:27px;font-size:13px}.kit-stamp small{font-size:5.8px}.kit-stamp b{font-size:7.3px}.beer-index{bottom:28px}}
+
+/* High-fidelity 3D render blended into the section, with a replayable fill reveal. */
+.draft-scene{display:none}
+.beer-visual{background:transparent}
+.beer-visual:before{left:24%;right:17%;bottom:2%;height:27%;background:radial-gradient(ellipse at center,color-mix(in srgb,var(--beer-liquid),transparent 52%),transparent 70%);filter:blur(28px);opacity:.58}
+.beer-visual:after{inset:5% 1% 2%;border-color:color-mix(in srgb,var(--beer-accent),transparent 70%);opacity:.8}
+.render-stage{position:absolute;z-index:2;inset:0;overflow:hidden;background:transparent}
+.draft-render{position:absolute!important;z-index:1!important;inset:0;width:100%!important;height:100%!important;object-fit:contain!important;mix-blend-mode:screen;filter:contrast(1.12) saturate(1.08) drop-shadow(0 34px 32px #0009)!important;animation:renderArrive .75s cubic-bezier(.2,.85,.25,1) both!important;-webkit-mask-image:radial-gradient(ellipse 78% 94% at 50% 52%,#000 72%,transparent 100%)!important;mask-image:radial-gradient(ellipse 78% 94% at 50% 52%,#000 72%,transparent 100%)!important}
+.beer-visual--2 .draft-render{filter:contrast(1.1) saturate(1.04) brightness(1.03) hue-rotate(4deg) drop-shadow(0 34px 32px #0009)!important}
+.beer-visual--3 .draft-render{filter:contrast(1.12) saturate(1.3) sepia(.16) hue-rotate(-10deg) drop-shadow(0 34px 32px #0009)!important}
+.glass-cover{position:absolute;z-index:3;left:36.8%;top:42.5%;width:25.8%;height:55%;background:#0a1211;clip-path:polygon(11% 0,89% 0,78% 100%,22% 100%);transform-origin:top;animation:revealBeer 3.25s .18s cubic-bezier(.22,.66,.2,1) forwards}
+.empty-glass{position:absolute;z-index:4;left:36.8%;top:42.5%;width:25.8%;height:55%;clip-path:polygon(10% 0,90% 0,79% 96%,70% 100%,30% 100%,21% 96%);background:linear-gradient(90deg,#ffffff8c,#ffffff16 12%,#ffffff2b 48%,#ffffff12 82%,#ffffff94);opacity:.8;animation:fadeGuide 3.25s .18s ease forwards}
+.empty-glass:before{content:"";position:absolute;inset:4px 5px 7px;background:#0a1211;clip-path:polygon(8% 0,92% 0,80% 96%,70% 100%,30% 100%,20% 96%)}
+.empty-glass:after{content:"";position:absolute;left:8%;right:8%;top:1px;height:8px;border:2px solid #ffffffad;border-radius:50%;box-shadow:0 2px 9px #fff5}
+.stream-cover{position:absolute;z-index:3;left:43.2%;top:27%;width:8%;height:18%;border-radius:8px;background:#0a1211;animation:showStream 3.45s ease forwards}
+.pour-light{position:absolute;z-index:4;left:46.4%;top:29.5%;width:5px;height:14%;border-radius:999px;background:linear-gradient(90deg,color-mix(in srgb,var(--beer-liquid),#4c2607 30%),#ffe3a0,var(--beer-liquid));box-shadow:0 0 10px color-mix(in srgb,var(--beer-liquid),transparent 16%);transform:scaleY(0);transform-origin:top;animation:renderPour 3.35s .08s ease forwards}
+.render-stage:after{content:"";position:absolute;z-index:5;left:44.7%;top:42%;width:9%;height:5%;border-radius:50%;background:radial-gradient(ellipse,#fff8e5 0%,#f1ddb8 38%,transparent 72%);opacity:0;animation:foamBloom 3.3s .2s ease forwards;filter:blur(.4px)}
+.kit-stamp{z-index:7;left:3%;bottom:7%;min-width:218px;padding:12px 16px;border:1px solid #ffffff35;border-left:3px solid var(--beer-accent);border-radius:7px;background:#0d1c1ae8;color:var(--cream);backdrop-filter:blur(12px);box-shadow:0 15px 35px #0008}
+.kit-mark{background:var(--beer-accent);color:#102724;box-shadow:0 0 0 5px color-mix(in srgb,var(--beer-accent),transparent 78%)}
+.kit-stamp small{color:#91a09a}.kit-stamp b{color:var(--cream)}
+@keyframes renderArrive{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes revealBeer{0%,8%{transform:scaleY(1)}100%{transform:scaleY(0)}}
+@keyframes fadeGuide{0%,72%{opacity:.82}100%{opacity:0}}
+@keyframes showStream{0%,8%{opacity:1}14%,82%{opacity:0}100%{opacity:1}}
+@keyframes renderPour{0%,8%{transform:scaleY(0);opacity:0}14%,82%{transform:scaleY(1);opacity:.9}100%{transform:scaleY(.02);opacity:0}}
+@keyframes foamBloom{0%,18%{opacity:0;transform:scale(.5)}58%,82%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(1.08)}}
+@media(max-width:920px){.glass-cover,.empty-glass{left:37.5%;width:25%}.kit-stamp{left:6%;bottom:9%}}
+@media(max-width:580px){.glass-cover,.empty-glass{left:37%;top:42%;width:27%;height:56%}.stream-cover{left:42%;top:27%;width:11%;height:18%}.pour-light{left:46.5%;top:29%;height:14%}.render-stage:after{left:44%;top:41.7%;width:11%}.kit-stamp{left:0;bottom:4%;min-width:168px;padding:9px 11px}.kit-stamp b{font-size:7px}.kit-stamp small{font-size:5.6px}}

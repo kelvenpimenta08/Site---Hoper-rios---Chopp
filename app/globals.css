@@ -207,7 +207,7 @@
 
 /* Remove the extra stream accent and restore the original compact kit label. */
 .static-stream-tint{display:none}
-.kit-stamp{left:2%;bottom:8%;display:block;min-width:228px;padding:13px 18px;border:0;border-left:3px solid var(--beer-accent);border-radius:0;background:linear-gradient(90deg,#071413f2 0%,#071413d9 68%,transparent 100%);box-shadow:none;backdrop-filter:blur(7px);transform:rotate(-1deg)}
+.kit-stamp{left:2%;bottom:8%;display:block;min-width:228px;padding:13px 18px;border:0;border-left:3px solid var(--beer-accent);border-radius:0;background:linear-gradient(90deg,#071413f2 0%,#071413d9 68%,transparent 100%);box-shadow:none;backdrop-filter:blur(7px);transform:none}
 .kit-mark{display:none}
 .kit-stamp>span:last-child{display:grid;gap:4px}
 .kit-stamp small{font-size:7px;color:#82918c;letter-spacing:1.35px}

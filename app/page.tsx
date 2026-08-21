@@ -101,7 +101,7 @@ function DraftStaticRender({ name }: { name: string }) {
     return () => { cancelled = true; };
   }, []);
 
-  return <div className="render-stage render-stage--static" role="img" aria-label={`Render 3D de uma torneira servindo um copo cheio de ${name}`}><canvas className="render-static" ref={canvasRef}/><span className="static-stream-tint" aria-hidden="true"></span></div>;
+  return <div className="render-stage render-stage--static" role="img" aria-label={`Render 3D de uma torneira servindo um copo cheio de ${name}`}><canvas className="render-static" ref={canvasRef}/></div>;
 }
 
 export default function Home() {

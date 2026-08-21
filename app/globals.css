@@ -167,3 +167,29 @@
 @keyframes canvasArrive{from{opacity:0;transform:translateY(16px) scale(.98)}to{opacity:1;transform:none}}
 @keyframes canvasFill{0%,10%{clip-path:inset(100% 0 0)}100%{clip-path:inset(0 0 0)}}
 @keyframes canvasPour{0%,7%{opacity:0;clip-path:inset(0 0 100%)}14%{opacity:1;clip-path:inset(0 0 0)}80%{opacity:1;clip-path:inset(0 0 0)}100%{opacity:0;clip-path:inset(0 0 0)}}
+
+/* Natural pour sequence: starts on viewport entry, rides the liquid surface, then closes. */
+.beer-visual{animation:beerCrossfade .56s ease both}
+.beer-visual:after{display:none!important}
+.render-base{opacity:0;animation:none}
+.render-fill{clip-path:inset(100% 0 0);animation:none}
+.render-stream{opacity:0;clip-path:inset(0 0 100%);animation:none}
+.is-pouring .render-base{animation:canvasSettle .7s cubic-bezier(.2,.85,.25,1) both}
+.is-pouring .render-fill{animation:trueGlassFill 4.55s .18s cubic-bezier(.18,.62,.18,1) forwards}
+.is-pouring .render-stream{animation:trueTapPour 4.65s .05s ease forwards}
+.live-foam{position:absolute;z-index:4;left:39.2%;top:92%;width:23.7%;height:18px;border-radius:50%;background:radial-gradient(circle at 12% 62%,#fff 0 2px,transparent 2.6px),radial-gradient(circle at 31% 35%,#fff9ed 0 3px,transparent 3.6px),radial-gradient(circle at 58% 58%,#fff 0 2.5px,transparent 3.1px),radial-gradient(circle at 78% 30%,#fff8e5 0 2px,transparent 2.8px),linear-gradient(180deg,#fffdf4,#e9d6a9 72%,#bc7a2166);background-size:18px 14px,24px 17px,21px 16px,20px 15px,100% 100%;box-shadow:0 -5px 12px #fff7,0 7px 12px color-mix(in srgb,var(--beer-liquid),transparent 42%);filter:blur(.2px);opacity:0;transform:scaleX(.72);pointer-events:none}
+.live-foam i{position:absolute;width:5px;height:5px;border:1px solid #fff;border-radius:50%;background:#fff8e8;animation:foamBubble 1.15s ease-in-out infinite alternate}.live-foam i:nth-child(1){left:12%;top:4px}.live-foam i:nth-child(2){left:32%;top:-3px;animation-delay:-.4s}.live-foam i:nth-child(3){left:52%;top:5px;animation-delay:-.7s}.live-foam i:nth-child(4){left:70%;top:-1px;animation-delay:-.2s}.live-foam i:nth-child(5){left:86%;top:6px;animation-delay:-.9s}
+.is-pouring .live-foam{animation:foamRide 4.55s .18s cubic-bezier(.18,.62,.18,1) forwards}
+.impact-ripple{position:absolute;z-index:4;left:44%;top:91%;width:14%;height:9px;border:2px solid color-mix(in srgb,var(--beer-liquid),#fff 28%);border-radius:50%;opacity:0;pointer-events:none}
+.is-pouring .impact-ripple{animation:impactAtBottom 1.05s .55s ease-out both}
+.beer-visual--2 .live-foam{filter:brightness(1.03)}
+.beer-visual--3 .render-fill,.beer-visual--3 .render-stream{filter:hue-rotate(-16deg) saturate(1.28) brightness(.9) contrast(1.04) drop-shadow(0 34px 32px #0008)}
+@keyframes beerCrossfade{from{opacity:0;transform:scale(.988)}to{opacity:1;transform:none}}
+@keyframes canvasSettle{from{opacity:0;transform:scale(.988)}to{opacity:1;transform:none}}
+@keyframes trueGlassFill{0%,15%{clip-path:inset(100% 0 0)}100%{clip-path:inset(0 0 0)}}
+@keyframes trueTapPour{0%,5%{opacity:0;clip-path:inset(0 0 100%)}12%{opacity:1;clip-path:inset(0 0 0)}86%{opacity:1;clip-path:inset(0 0 0)}92%,100%{opacity:0;clip-path:inset(0 0 0)}}
+@keyframes foamRide{0%,15%{top:92%;opacity:0;transform:scaleX(.58)}21%{opacity:.95}80%{opacity:1;transform:scaleX(1.03)}94%{top:43.3%;opacity:1;transform:scaleX(1)}100%{top:43.3%;opacity:0;transform:scaleX(1)}}
+@keyframes impactAtBottom{0%{opacity:0;transform:scale(.3)}35%{opacity:.9}100%{opacity:0;transform:scale(1.45)}}
+@keyframes foamBubble{from{transform:translateY(2px) scale(.75);opacity:.65}to{transform:translateY(-3px) scale(1.1);opacity:1}}
+@media(max-width:580px){.live-foam{left:39%;width:25%;height:13px}.impact-ripple{left:43%;width:17%}}
+@media(prefers-reduced-motion:reduce){.render-base{opacity:1}.render-fill{clip-path:none}.render-stream,.live-foam,.impact-ripple{display:none}}

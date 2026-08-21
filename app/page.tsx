@@ -58,7 +58,7 @@ const recommendBarrels = (targetLiters: number) => {
   return { ...best, label: parts.join(" + ") };
 };
 
-function DraftPourRender({ name }: { name: string }) {
+function DraftPourRender({ name, active }: { name: string; active: boolean }) {
   const baseRef = useRef<HTMLCanvasElement>(null);
   const fillRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<HTMLCanvasElement>(null);
@@ -120,7 +120,7 @@ function DraftPourRender({ name }: { name: string }) {
     return () => { cancelled = true; };
   }, []);
 
-  return <div className="render-stage" role="img" aria-label={`Render 3D de uma torneira enchendo um copo de ${name}`}><canvas className="render-layer render-base" ref={baseRef}/><canvas className="render-layer render-fill" ref={fillRef}/><canvas className="render-layer render-stream" ref={streamRef}/></div>;
+  return <div className={`render-stage${active ? " is-pouring" : ""}`} role="img" aria-label={`Render 3D de uma torneira enchendo um copo de ${name}`}><canvas className="render-layer render-base" ref={baseRef}/><canvas className="render-layer render-fill" ref={fillRef}/><canvas className="render-layer render-stream" ref={streamRef}/><span className="impact-ripple" aria-hidden="true"></span><span className="live-foam" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div>;
 }
 
 export default function Home() {
@@ -136,6 +136,8 @@ export default function Home() {
   const [openFaq, setOpenFaq] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [progress, setProgress] = useState(0);
+  const [beerInView, setBeerInView] = useState(false);
+  const beerSectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const reveal = () => document.querySelectorAll(".reveal").forEach((el) => {
@@ -149,6 +151,14 @@ export default function Home() {
     scroll();
     addEventListener("scroll", scroll, { passive: true });
     return () => removeEventListener("scroll", scroll);
+  }, []);
+
+  useEffect(() => {
+    const section = beerSectionRef.current;
+    if (!section) return;
+    const observer = new IntersectionObserver(([entry]) => setBeerInView(entry.isIntersecting), { threshold: .28 });
+    observer.observe(section);
+    return () => observer.disconnect();
   }, []);
 
   const drinkingPeople = useMemo(() => Math.ceil(people * drinkingShare / 100), [people, drinkingShare]);
@@ -199,11 +209,11 @@ export default function Home() {
 
     <section className="proof"><div><strong>+21 mil</strong><span>seguidores acompanhando a marca</span></div><div><strong>Até 23h</strong><span>para instalar no mesmo dia*</span></div><div><strong>100% local</strong><span>produzido por quem entende de chopp</span></div><small>*Conforme disponibilidade e rota.</small></section>
 
-    <section className="beer-showcase reveal" id="chopes" style={{ "--beer-accent": chopes[beer].color, "--beer-liquid": chopes[beer].color } as React.CSSProperties}>
+    <section className="beer-showcase reveal" id="chopes" ref={beerSectionRef} style={{ "--beer-accent": chopes[beer].color, "--beer-liquid": chopes[beer].color } as React.CSSProperties}>
       <div className="showcase-heading"><p className="kicker">Arraste. Escolha. Brinde.</p><h2>Um chopp de cada vez.<br/><i>Todos memoráveis.</i></h2></div>
       <div className="beer-stage" onTouchStart={e => setTouchStart(e.touches[0].clientX)} onTouchEnd={e => { if (touchStart === null) return; const d = e.changedTouches[0].clientX - touchStart; if (Math.abs(d) > 45) selectBeer(beer + (d < 0 ? 1 : -1)); setTouchStart(null); }}>
         <button className="slide-arrow prev" onClick={() => selectBeer(beer - 1)} aria-label="Chopp anterior">←</button>
-        <div className={`beer-visual beer-visual--${beer + 1}`} key={beer}><span className="liquid-type">{chopes[beer].type}</span><DraftPourRender name={chopes[beer].name}/><div className="kit-stamp"><span className="kit-mark">✓</span><span><small>Kit completo instalado</small><b>Barril · Chopeira · Gás</b></span></div><div className="beer-index">0{beer + 1}</div></div>
+        <div className={`beer-visual beer-visual--${beer + 1}`} key={beer}><span className="liquid-type">{chopes[beer].type}</span><DraftPourRender key={`${beer}-${beerInView}`} name={chopes[beer].name} active={beerInView}/><div className="kit-stamp"><span className="kit-mark">✓</span><span><small>Kit completo instalado</small><b>Barril · Chopeira · Gás</b></span></div><div className="beer-index">0{beer + 1}</div></div>
         <article className="beer-details" key={chopes[beer].name}><p className="kicker">{chopes[beer].type}</p><h3>{chopes[beer].name}</h3><p>{chopes[beer].desc}</p><div className="beer-specs"><span><small>Teor</small><b>{chopes[beer].abv}</b></span><span><small>Serviço</small><b>{chopes[beer].temp}</b></span></div><div className="beer-prices"><span><small>30 litros</small><b>{chopes[beer].p30}</b></span><span><small>50 litros</small><b>{chopes[beer].p50}</b></span></div><a className="button gold" href={wa(`Olá! Quero um orçamento do chopp ${chopes[beer].name} para meu evento.`)} target="_blank">Pedir este chopp ↗</a></article>
         <button className="slide-arrow next" onClick={() => selectBeer(beer + 1)} aria-label="Próximo chopp">→</button>
       </div>

@@ -102,9 +102,16 @@ function DraftStaticRender({ name, color }: { name: string; color: string }) {
         const y = Math.floor(pixel / width);
         const inStream = x > width * .4 && x < width * .55 && y > height * .2 && y < height * .49;
         const inGlass = x > width * .31 && x < width * .72 && y > height * .42 && y < height * .96;
+        const inFoam = x > width * .32 && x < width * .7 && y > height * .355 && y < height * .47;
+        const isFoam = inFoam && red > 80 && green > 65 && blue > 45 && green > red * .62 && blue > red * .28;
         const isBeer = red > 70 && red > blue * 1.28 && green > blue * 1.14 && red - blue > 32;
 
-        if (isBeer && (inStream || inGlass)) {
+        if (isFoam) {
+          const foamLift = .76;
+          pixels[offset] += (252 - pixels[offset]) * foamLift;
+          pixels[offset + 1] += (249 - pixels[offset + 1]) * foamLift;
+          pixels[offset + 2] += (239 - pixels[offset + 2]) * foamLift;
+        } else if (isBeer && (inStream || inGlass)) {
           const luminance = (.2126 * red + .7152 * green + .0722 * blue) / 255;
           const shade = .48 + luminance * .78;
           const highlight = Math.max(0, luminance - .68) * .72;

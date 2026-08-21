@@ -7,9 +7,9 @@ const wa = (text: string) => `https://wa.me/${phone}?text=${encodeURIComponent(t
 const baseWa = wa("Olá, vim pelo site e quero um orçamento de chopp para meu evento.");
 
 const chopes = [
-  { name: "Lager", type: "Clássica & leve", desc: "Refrescante, democrática e feita para manter a festa rodando do primeiro ao último brinde.", abv: "4,5%", temp: "0–2°C", p30: "R$ 500", p50: "R$ 750", image: "/chopp-lager.png", color: "#bb7a20" },
-  { name: "Pilsen Hoperários", type: "Receita da casa", desc: "Nossa interpretação da Pilsen: fresca, equilibrada e produzida aqui, não revendida.", abv: "4,7%", temp: "0–2°C", p30: "R$ 550", p50: "R$ 800", image: "/chopp-vienna.png", color: "#a64f21" },
-  { name: "Estilos especiais", type: "Para explorar", desc: "American Wheat, Vienna, IPA e Sour para transformar a torneira em uma atração do evento.", abv: "Varia", temp: "2–6°C", p30: "R$ 620", p50: "até R$ 1.250", image: "/chopp-ipa.png", color: "#c68a2b" },
+  { name: "Lager", type: "Clássica & leve", desc: "Refrescante, democrática e feita para manter a festa rodando do primeiro ao último brinde.", abv: "4,5%", temp: "0–2°C", p30: "R$ 500", p50: "R$ 750", image: "/chopp-tap-3d-v1.png", color: "#bb7a20" },
+  { name: "Pilsen Hoperários", type: "Receita da casa", desc: "Nossa interpretação da Pilsen: fresca, equilibrada e produzida aqui, não revendida.", abv: "4,7%", temp: "0–2°C", p30: "R$ 550", p50: "R$ 800", image: "/chopp-tap-3d-v1.png", color: "#a64f21" },
+  { name: "Estilos especiais", type: "Para explorar", desc: "American Wheat, Vienna, IPA e Sour para transformar a torneira em uma atração do evento.", abv: "Varia", temp: "2–6°C", p30: "R$ 620", p50: "até R$ 1.250", image: "/chopp-tap-3d-v1.png", color: "#c68a2b" },
 ];
 
 const moments = [
@@ -138,7 +138,7 @@ export default function Home() {
       <div className="showcase-heading"><p className="kicker">Arraste. Escolha. Brinde.</p><h2>Um chopp de cada vez.<br/><i>Todos memoráveis.</i></h2></div>
       <div className="beer-stage" onTouchStart={e => setTouchStart(e.touches[0].clientX)} onTouchEnd={e => { if (touchStart === null) return; const d = e.changedTouches[0].clientX - touchStart; if (Math.abs(d) > 45) selectBeer(beer + (d < 0 ? 1 : -1)); setTouchStart(null); }}>
         <button className="slide-arrow prev" onClick={() => selectBeer(beer - 1)} aria-label="Chopp anterior">←</button>
-        <div className="beer-visual" key={chopes[beer].image}><span className="liquid-type">{chopes[beer].type}</span><img src={chopes[beer].image} alt={`Copo de ${chopes[beer].name}`}/><div className="beer-index">0{beer + 1}</div></div>
+        <div className={`beer-visual beer-visual--${beer + 1}`} key={beer}><span className="liquid-type">{chopes[beer].type}</span><div className="tap-status"><i></i> Servindo agora</div><img src={chopes[beer].image} alt={`Torneira servindo um copo de ${chopes[beer].name}`}/><span className="pour-glow" aria-hidden="true"></span><div className="beer-bubbles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><div className="kit-stamp"><small>Kit completo</small><b>CHOPEIRA + BARRIL</b></div><div className="beer-index">0{beer + 1}</div></div>
         <article className="beer-details" key={chopes[beer].name}><p className="kicker">{chopes[beer].type}</p><h3>{chopes[beer].name}</h3><p>{chopes[beer].desc}</p><div className="beer-specs"><span><small>Teor</small><b>{chopes[beer].abv}</b></span><span><small>Serviço</small><b>{chopes[beer].temp}</b></span></div><div className="beer-prices"><span><small>30 litros</small><b>{chopes[beer].p30}</b></span><span><small>50 litros</small><b>{chopes[beer].p50}</b></span></div><a className="button gold" href={wa(`Olá! Quero um orçamento do chopp ${chopes[beer].name} para meu evento.`)} target="_blank">Pedir este chopp ↗</a></article>
         <button className="slide-arrow next" onClick={() => selectBeer(beer + 1)} aria-label="Próximo chopp">→</button>
       </div>

@@ -62,3 +62,27 @@
 .care-grid p{margin:0}
 @media(max-width:580px){.care-grid h3{min-height:0}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
+
+/* Sculptural 3D draft scene for the beer carousel. */
+.beer-visual{isolation:isolate;overflow:visible;border-radius:48% 48% 12% 12%}
+.beer-visual:before{content:"";position:absolute;z-index:-2;left:12%;right:8%;bottom:2%;height:21%;border-radius:50%;background:radial-gradient(ellipse at center,color-mix(in srgb,var(--beer-accent),transparent 48%) 0%,color-mix(in srgb,var(--beer-accent),transparent 78%) 38%,transparent 73%);filter:blur(18px);opacity:.72;animation:stageGlow 3.4s ease-in-out infinite}
+.beer-visual:after{content:"";position:absolute;z-index:-1;inset:7% 2% 3% 3%;border:1px solid color-mix(in srgb,var(--beer-accent),transparent 67%);border-radius:50%;transform:rotate(-9deg);box-shadow:inset 0 0 80px color-mix(in srgb,var(--beer-accent),transparent 93%)}
+.beer-visual img{position:relative;z-index:1;object-fit:contain;filter:drop-shadow(0 34px 34px #000b) saturate(1.08);animation:tapFloat 5.5s ease-in-out infinite;-webkit-mask-image:radial-gradient(ellipse 76% 96% at 50% 50%,#000 70%,transparent 100%);mask-image:radial-gradient(ellipse 76% 96% at 50% 50%,#000 70%,transparent 100%)}
+.beer-visual--2 img{filter:drop-shadow(0 34px 34px #000b) saturate(1.02) hue-rotate(-7deg)}
+.beer-visual--3 img{filter:drop-shadow(0 34px 34px #000b) saturate(1.2) sepia(.12)}
+.tap-status{position:absolute;z-index:4;right:4%;top:13%;display:flex;align-items:center;gap:8px;padding:9px 13px;border:1px solid #ffffff22;border-radius:999px;background:#071413b8;backdrop-filter:blur(9px);color:#dbe4df;font-size:8px;font-weight:900;letter-spacing:1.25px;text-transform:uppercase;box-shadow:0 12px 30px #0005}
+.tap-status i{width:7px;height:7px;border-radius:50%;background:var(--beer-accent);box-shadow:0 0 0 5px color-mix(in srgb,var(--beer-accent),transparent 84%),0 0 16px var(--beer-accent);animation:servePulse 1.7s ease-in-out infinite}
+.pour-glow{position:absolute;z-index:3;left:47.6%;top:29%;width:4px;height:14.5%;border-radius:999px;background:linear-gradient(180deg,#ffe6a4,var(--beer-accent) 38%,#f6c051);box-shadow:0 0 8px #ffcb5e,0 0 20px color-mix(in srgb,var(--beer-accent),transparent 40%);transform:rotate(-1deg);transform-origin:top;opacity:.62;animation:pourShimmer .7s ease-in-out infinite alternate;pointer-events:none}
+.beer-bubbles{position:absolute;z-index:3;left:38%;right:29%;top:55%;bottom:12%;overflow:hidden;clip-path:polygon(20% 0,82% 0,71% 100%,30% 100%);opacity:.75;pointer-events:none}
+.beer-bubbles i{position:absolute;bottom:-8px;width:3px;height:3px;border:1px solid #ffe9b0;border-radius:50%;box-shadow:0 0 5px #ffd36a;animation:bubbleRise 2.6s linear infinite}
+.beer-bubbles i:nth-child(1){left:29%;animation-delay:-.3s}.beer-bubbles i:nth-child(2){left:47%;width:5px;height:5px;animation-delay:-1.7s;animation-duration:3.1s}.beer-bubbles i:nth-child(3){left:62%;animation-delay:-2.2s;animation-duration:2.2s}.beer-bubbles i:nth-child(4){left:38%;width:4px;height:4px;animation-delay:-1s;animation-duration:3.4s}.beer-bubbles i:nth-child(5){left:70%;animation-delay:-.6s;animation-duration:2.8s}
+.kit-stamp{position:absolute;z-index:4;left:2%;bottom:8%;display:grid;gap:3px;padding:12px 15px;border-left:2px solid var(--beer-accent);background:linear-gradient(90deg,#071413e8,transparent);text-transform:uppercase;letter-spacing:1.15px;transform:rotate(-2deg)}
+.kit-stamp small{font-size:7px;color:#82928d}.kit-stamp b{font-size:9px;color:var(--cream)}
+.beer-index{z-index:0;color:#ffffff0a}
+@keyframes tapFloat{0%,100%{transform:translateY(0) rotate(.001deg)}50%{transform:translateY(-8px) rotate(.001deg)}}
+@keyframes pourShimmer{from{opacity:.42;transform:rotate(-1deg) scaleX(.75)}to{opacity:.82;transform:rotate(-1deg) scaleX(1.2)}}
+@keyframes bubbleRise{0%{transform:translateY(0) scale(.6);opacity:0}15%{opacity:.85}100%{transform:translateY(-190px) scale(1.25);opacity:0}}
+@keyframes servePulse{0%,100%{transform:scale(.85);opacity:.72}50%{transform:scale(1.12);opacity:1}}
+@keyframes stageGlow{0%,100%{opacity:.55;transform:scale(.94)}50%{opacity:.82;transform:scale(1.04)}}
+@media(max-width:920px){.tap-status{right:8%;top:15%}.kit-stamp{left:7%;bottom:12%}.beer-bubbles{left:39%;right:30%}}
+@media(max-width:580px){.beer-visual:after{inset:10% 1% 5%}.tap-status{right:1%;top:14%;padding:7px 9px;font-size:6px}.pour-glow{left:47.7%;top:29.2%;height:14%}.kit-stamp{left:0;bottom:9%;padding:9px 10px}.kit-stamp b{font-size:7px}.beer-bubbles{left:37%;right:28%;top:55%;bottom:13%}}

@@ -58,17 +58,15 @@ const recommendBarrels = (targetLiters: number) => {
   return { ...best, label: parts.join(" + ") };
 };
 
-function DraftPourRender({ name, active }: { name: string; active: boolean }) {
-  const baseRef = useRef<HTMLCanvasElement>(null);
-  const fillRef = useRef<HTMLCanvasElement>(null);
-  const streamRef = useRef<HTMLCanvasElement>(null);
+function DraftStaticRender({ name }: { name: string }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     let cancelled = false;
     const image = new Image();
 
     image.onload = () => {
-      if (cancelled || !baseRef.current || !fillRef.current || !streamRef.current) return;
+      if (cancelled || !canvasRef.current) return;
       const width = image.naturalWidth;
       const height = image.naturalHeight;
       const source = document.createElement("canvas");
@@ -77,50 +75,33 @@ function DraftPourRender({ name, active }: { name: string; active: boolean }) {
       const sourceContext = source.getContext("2d", { willReadFrequently: true });
       if (!sourceContext) return;
       sourceContext.drawImage(image, 0, 0);
-      const pixels = sourceContext.getImageData(0, 0, width, height).data;
-      const basePixels = new Uint8ClampedArray(pixels.length);
-      const fillPixels = new Uint8ClampedArray(pixels.length);
-      const streamPixels = new Uint8ClampedArray(pixels.length);
+      const imageData = sourceContext.getImageData(0, 0, width, height);
+      const pixels = imageData.data;
 
-      for (let y = 0; y < height; y++) {
-        const glassProgress = Math.max(0, Math.min(1, (y / height - .425) / .54));
-        const glassLeft = (.382 + glassProgress * .055) * width;
-        const glassRight = (.622 - glassProgress * .055) * width;
-
-        for (let x = 0; x < width; x++) {
-          const offset = (y * width + x) * 4;
-          const red = pixels[offset];
-          const green = pixels[offset + 1];
-          const blue = pixels[offset + 2];
-          const brightness = Math.max(red, green, blue);
-          const alpha = brightness < 12 ? 0 : Math.min(255, (brightness - 10) * 3.3);
-          if (!alpha) continue;
-
-          const inGlass = y > height * .425 && y < height * .975 && x > glassLeft && x < glassRight;
-          const inStreamArea = y > height * .27 && y < height * .445 && x > width * .41 && x < width * .53;
-          const isGoldenStream = inStreamArea && red > 70 && red > blue * 1.45 && green > blue * 1.25;
-          const target = isGoldenStream ? streamPixels : inGlass ? fillPixels : basePixels;
-          const visibleScale = alpha < 255 ? 255 / alpha : 1;
-          target[offset] = Math.min(255, red * visibleScale);
-          target[offset + 1] = Math.min(255, green * visibleScale);
-          target[offset + 2] = Math.min(255, blue * visibleScale);
-          target[offset + 3] = alpha;
+      for (let offset = 0; offset < pixels.length; offset += 4) {
+        const brightness = Math.max(pixels[offset], pixels[offset + 1], pixels[offset + 2]);
+        const alpha = brightness < 12 ? 0 : Math.min(255, (brightness - 10) * 3.3);
+        if (!alpha) {
+          pixels[offset + 3] = 0;
+          continue;
         }
+        const visibleScale = alpha < 255 ? 255 / alpha : 1;
+        pixels[offset] = Math.min(255, pixels[offset] * visibleScale);
+        pixels[offset + 1] = Math.min(255, pixels[offset + 1] * visibleScale);
+        pixels[offset + 2] = Math.min(255, pixels[offset + 2] * visibleScale);
+        pixels[offset + 3] = alpha;
       }
 
-      [[baseRef.current, basePixels], [fillRef.current, fillPixels], [streamRef.current, streamPixels]].forEach(([canvas, data]) => {
-        const targetCanvas = canvas as HTMLCanvasElement;
-        targetCanvas.width = width;
-        targetCanvas.height = height;
-        targetCanvas.getContext("2d")?.putImageData(new ImageData(data as Uint8ClampedArray, width, height), 0, 0);
-      });
+      canvasRef.current.width = width;
+      canvasRef.current.height = height;
+      canvasRef.current.getContext("2d")?.putImageData(imageData, 0, 0);
     };
 
     image.src = "/chopp-tap-3d-v1.png";
     return () => { cancelled = true; };
   }, []);
 
-  return <div className={`render-stage${active ? " is-pouring" : ""}`} role="img" aria-label={`Render 3D de uma torneira enchendo um copo de ${name}`}><canvas className="render-layer render-base" ref={baseRef}/><canvas className="render-layer render-fill" ref={fillRef}/><canvas className="render-layer render-stream" ref={streamRef}/><span className="impact-ripple" aria-hidden="true"></span><span className="live-foam" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div>;
+  return <div className="render-stage render-stage--static" role="img" aria-label={`Render 3D de uma torneira servindo um copo cheio de ${name}`}><canvas className="render-static" ref={canvasRef}/><span className="static-stream-tint" aria-hidden="true"></span></div>;
 }
 
 export default function Home() {
@@ -136,8 +117,6 @@ export default function Home() {
   const [openFaq, setOpenFaq] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [progress, setProgress] = useState(0);
-  const [beerInView, setBeerInView] = useState(false);
-  const beerSectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const reveal = () => document.querySelectorAll(".reveal").forEach((el) => {
@@ -151,14 +130,6 @@ export default function Home() {
     scroll();
     addEventListener("scroll", scroll, { passive: true });
     return () => removeEventListener("scroll", scroll);
-  }, []);
-
-  useEffect(() => {
-    const section = beerSectionRef.current;
-    if (!section) return;
-    const observer = new IntersectionObserver(([entry]) => setBeerInView(entry.isIntersecting), { threshold: .28 });
-    observer.observe(section);
-    return () => observer.disconnect();
   }, []);
 
   const drinkingPeople = useMemo(() => Math.ceil(people * drinkingShare / 100), [people, drinkingShare]);
@@ -209,11 +180,11 @@ export default function Home() {
 
     <section className="proof"><div><strong>+21 mil</strong><span>seguidores acompanhando a marca</span></div><div><strong>Até 23h</strong><span>para instalar no mesmo dia*</span></div><div><strong>100% local</strong><span>produzido por quem entende de chopp</span></div><small>*Conforme disponibilidade e rota.</small></section>
 
-    <section className="beer-showcase reveal" id="chopes" ref={beerSectionRef} style={{ "--beer-accent": chopes[beer].color, "--beer-liquid": chopes[beer].color } as React.CSSProperties}>
+    <section className="beer-showcase reveal" id="chopes" style={{ "--beer-accent": chopes[beer].color, "--beer-liquid": chopes[beer].color } as React.CSSProperties}>
       <div className="showcase-heading"><p className="kicker">Arraste. Escolha. Brinde.</p><h2>Um chopp de cada vez.<br/><i>Todos memoráveis.</i></h2></div>
       <div className="beer-stage" onTouchStart={e => setTouchStart(e.touches[0].clientX)} onTouchEnd={e => { if (touchStart === null) return; const d = e.changedTouches[0].clientX - touchStart; if (Math.abs(d) > 45) selectBeer(beer + (d < 0 ? 1 : -1)); setTouchStart(null); }}>
         <button className="slide-arrow prev" onClick={() => selectBeer(beer - 1)} aria-label="Chopp anterior">←</button>
-        <div className={`beer-visual beer-visual--${beer + 1}`} key={beer}><span className="liquid-type">{chopes[beer].type}</span><DraftPourRender key={`${beer}-${beerInView}`} name={chopes[beer].name} active={beerInView}/><div className="kit-stamp"><span className="kit-mark">✓</span><span><small>Kit completo instalado</small><b>Barril · Chopeira · Gás</b></span></div><div className="beer-index">0{beer + 1}</div></div>
+        <div className={`beer-visual beer-visual--${beer + 1}`} key={beer}><span className="liquid-type">{chopes[beer].type}</span><DraftStaticRender name={chopes[beer].name}/><div className="kit-stamp"><span className="kit-mark">✓</span><span><small>Kit completo instalado</small><b>Barril · Chopeira · Gás</b></span></div><div className="beer-index">0{beer + 1}</div></div>
         <article className="beer-details" key={chopes[beer].name}><p className="kicker">{chopes[beer].type}</p><h3>{chopes[beer].name}</h3><p>{chopes[beer].desc}</p><div className="beer-specs"><span><small>Teor</small><b>{chopes[beer].abv}</b></span><span><small>Serviço</small><b>{chopes[beer].temp}</b></span></div><div className="beer-prices"><span><small>30 litros</small><b>{chopes[beer].p30}</b></span><span><small>50 litros</small><b>{chopes[beer].p50}</b></span></div><a className="button gold" href={wa(`Olá! Quero um orçamento do chopp ${chopes[beer].name} para meu evento.`)} target="_blank">Pedir este chopp ↗</a></article>
         <button className="slide-arrow next" onClick={() => selectBeer(beer + 1)} aria-label="Próximo chopp">→</button>
       </div>

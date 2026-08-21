@@ -161,7 +161,7 @@ export default function Home() {
 
     <section className="faq reveal"><div><p className="kicker">Dúvidas frequentes</p><h2>Antes de abrir<br/><i>a torneira.</i></h2></div><div className="faq-list">{faqs.map((f, i) => <article key={f[0]}><button onClick={() => setOpenFaq(openFaq === i ? -1 : i)} aria-expanded={openFaq === i}><span>{f[0]}</span><b>{openFaq === i ? "−" : "+"}</b></button>{openFaq === i && <p>{f[1]}</p>}</article>)}</div></section>
 
-    <section className="final-cta reveal"><p className="kicker">Seu evento merece chopp de verdade</p><h2>A próxima rodada<br/><i>começa aqui.</i></h2><p>Fale direto com a equipe local, confirme a disponibilidade e receba seu orçamento.</p><a className="button gold" href={baseWa} target="_blank">Chamar no WhatsApp <b>↗</b></a><small>(24) 99882-0572</small></section>
+    <section className="final-cta reveal"><p className="kicker">Seu evento merece chopp de verdade</p><h2>A próxima rodada<br/><i>começa aqui.</i></h2><p>Fale direto com a equipe local, confirme a disponibilidade e receba seu orçamento.</p><a className="button gold" href={baseWa} target="_blank">Chamar no WhatsApp <b>↗</b></a></section>
     <a className="floating-wa" href={baseWa} target="_blank" aria-label="Falar no WhatsApp">WhatsApp <b>↗</b></a>
     <footer><a className="footer-logo" href="#top"><img src="/hoperarios-wordmark-clean.png" alt="Hoperários Cervejaria"/></a><p>Cervejaria artesanal de Volta Redonda/RJ.<br/>Barril, chopeira, gás, entrega e instalação.</p><div><a href="https://www.instagram.com/cervejariahoperarios/" target="_blank">Instagram ↗</a><a href={baseWa} target="_blank">WhatsApp ↗</a></div><small>Beba com moderação. Venda proibida para menores de 18 anos.</small></footer>
   </main>;

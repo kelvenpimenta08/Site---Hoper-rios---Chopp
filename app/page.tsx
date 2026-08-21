@@ -7,9 +7,9 @@ const wa = (text: string) => `https://wa.me/${phone}?text=${encodeURIComponent(t
 const baseWa = wa("Olá, vim pelo site e quero um orçamento de chopp para meu evento.");
 
 const chopes = [
-  { name: "Lager", type: "Clássica & leve", desc: "Refrescante, democrática e feita para manter a festa rodando do primeiro ao último brinde.", abv: "4,5%", temp: "0–2°C", p30: "R$ 500", p50: "R$ 750", color: "#e9a51f" },
-  { name: "Pilsen Hoperários", type: "Receita da casa", desc: "Nossa interpretação da Pilsen: fresca, equilibrada e produzida aqui, não revendida.", abv: "4,7%", temp: "0–2°C", p30: "R$ 550", p50: "R$ 800", color: "#f1bd3b" },
-  { name: "Estilos especiais", type: "Para explorar", desc: "American Wheat, Vienna, IPA e Sour para transformar a torneira em uma atração do evento.", abv: "Varia", temp: "2–6°C", p30: "R$ 620", p50: "até R$ 1.250", color: "#b85b27" },
+  { name: "Lager", type: "Clássica & leve", desc: "Refrescante, democrática e feita para manter a festa rodando do primeiro ao último brinde.", abv: "4,5%", temp: "0–2°C", p30: "R$ 500", p50: "R$ 750", color: "#d99624", liquid: "#d89a25" },
+  { name: "Pilsen Hoperários", type: "Receita da casa", desc: "Nossa interpretação da Pilsen: fresca, equilibrada e produzida aqui, não revendida.", abv: "4,7%", temp: "0–2°C", p30: "R$ 550", p50: "R$ 800", color: "#e7bd49", liquid: "#edc65b" },
+  { name: "Estilos especiais", type: "Para explorar", desc: "American Wheat, Vienna, IPA e Sour para transformar a torneira em uma atração do evento.", abv: "Varia", temp: "2–6°C", p30: "R$ 620", p50: "até R$ 1.250", color: "#b85b27", liquid: "#ad572b" },
 ];
 
 const moments = [
@@ -58,7 +58,7 @@ const recommendBarrels = (targetLiters: number) => {
   return { ...best, label: parts.join(" + ") };
 };
 
-function DraftStaticRender({ name }: { name: string }) {
+function DraftStaticRender({ name, color }: { name: string; color: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -77,19 +77,41 @@ function DraftStaticRender({ name }: { name: string }) {
       sourceContext.drawImage(image, 0, 0);
       const imageData = sourceContext.getImageData(0, 0, width, height);
       const pixels = imageData.data;
+      const targetRed = Number.parseInt(color.slice(1, 3), 16);
+      const targetGreen = Number.parseInt(color.slice(3, 5), 16);
+      const targetBlue = Number.parseInt(color.slice(5, 7), 16);
 
       for (let offset = 0; offset < pixels.length; offset += 4) {
-        const brightness = Math.max(pixels[offset], pixels[offset + 1], pixels[offset + 2]);
+        const red = pixels[offset];
+        const green = pixels[offset + 1];
+        const blue = pixels[offset + 2];
+        const brightness = Math.max(red, green, blue);
         const alpha = brightness < 12 ? 0 : Math.min(255, (brightness - 10) * 3.3);
         if (!alpha) {
           pixels[offset + 3] = 0;
           continue;
         }
         const visibleScale = alpha < 255 ? 255 / alpha : 1;
-        pixels[offset] = Math.min(255, pixels[offset] * visibleScale);
-        pixels[offset + 1] = Math.min(255, pixels[offset + 1] * visibleScale);
-        pixels[offset + 2] = Math.min(255, pixels[offset + 2] * visibleScale);
+        pixels[offset] = Math.min(255, red * visibleScale);
+        pixels[offset + 1] = Math.min(255, green * visibleScale);
+        pixels[offset + 2] = Math.min(255, blue * visibleScale);
         pixels[offset + 3] = alpha;
+
+        const pixel = offset / 4;
+        const x = pixel % width;
+        const y = Math.floor(pixel / width);
+        const inStream = x > width * .4 && x < width * .55 && y > height * .2 && y < height * .49;
+        const inGlass = x > width * .31 && x < width * .72 && y > height * .42 && y < height * .96;
+        const isBeer = red > 70 && red > blue * 1.28 && green > blue * 1.14 && red - blue > 32;
+
+        if (isBeer && (inStream || inGlass)) {
+          const luminance = (.2126 * red + .7152 * green + .0722 * blue) / 255;
+          const shade = .48 + luminance * .78;
+          const highlight = Math.max(0, luminance - .68) * .72;
+          pixels[offset] = Math.min(255, targetRed * shade + 255 * highlight);
+          pixels[offset + 1] = Math.min(255, targetGreen * shade + 245 * highlight);
+          pixels[offset + 2] = Math.min(255, targetBlue * shade + 220 * highlight);
+        }
       }
 
       canvasRef.current.width = width;
@@ -99,7 +121,7 @@ function DraftStaticRender({ name }: { name: string }) {
 
     image.src = "/chopp-tap-3d-v1.png";
     return () => { cancelled = true; };
-  }, []);
+  }, [color]);
 
   return <div className="render-stage render-stage--static" role="img" aria-label={`Render 3D de uma torneira servindo um copo cheio de ${name}`}><canvas className="render-static" ref={canvasRef}/></div>;
 }
@@ -184,7 +206,7 @@ export default function Home() {
       <div className="showcase-heading"><p className="kicker">Arraste. Escolha. Brinde.</p><h2>Um chopp de cada vez.<br/><i>Todos memoráveis.</i></h2></div>
       <div className="beer-stage" onTouchStart={e => setTouchStart(e.touches[0].clientX)} onTouchEnd={e => { if (touchStart === null) return; const d = e.changedTouches[0].clientX - touchStart; if (Math.abs(d) > 45) selectBeer(beer + (d < 0 ? 1 : -1)); setTouchStart(null); }}>
         <button className="slide-arrow prev" onClick={() => selectBeer(beer - 1)} aria-label="Chopp anterior">←</button>
-        <div className={`beer-visual beer-visual--${beer + 1}`} key={beer}><span className="liquid-type">{chopes[beer].type}</span><DraftStaticRender name={chopes[beer].name}/><div className="kit-stamp"><span className="kit-mark">✓</span><span><small>Kit completo instalado</small><b>Barril · Chopeira · Gás</b></span></div><div className="beer-index">0{beer + 1}</div></div>
+        <div className={`beer-visual beer-visual--${beer + 1}`} key={beer}><span className="liquid-type">{chopes[beer].type}</span><DraftStaticRender name={chopes[beer].name} color={chopes[beer].liquid}/><div className="kit-stamp"><span className="kit-mark">✓</span><span><small>Kit completo instalado</small><b>Barril · Chopeira · Gás</b></span></div><div className="beer-index">0{beer + 1}</div></div>
         <article className="beer-details" key={chopes[beer].name}><p className="kicker">{chopes[beer].type}</p><h3>{chopes[beer].name}</h3><p>{chopes[beer].desc}</p><div className="beer-specs"><span><small>Teor</small><b>{chopes[beer].abv}</b></span><span><small>Serviço</small><b>{chopes[beer].temp}</b></span></div><div className="beer-prices"><span><small>30 litros</small><b>{chopes[beer].p30}</b></span><span><small>50 litros</small><b>{chopes[beer].p50}</b></span></div><a className="button gold" href={wa(`Olá! Quero um orçamento do chopp ${chopes[beer].name} para meu evento.`)} target="_blank">Pedir este chopp ↗</a></article>
         <button className="slide-arrow next" onClick={() => selectBeer(beer + 1)} aria-label="Próximo chopp">→</button>
       </div>

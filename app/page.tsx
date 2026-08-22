@@ -169,8 +169,8 @@ export default function Home() {
   useEffect(() => {
     moments.forEach(({ image }) => {
       const preload = new Image();
-      preload.decoding = "async";
       preload.src = image;
+      void preload.decode().catch(() => undefined);
     });
   }, []);
 
@@ -248,7 +248,7 @@ export default function Home() {
       <p className="price-note">Estilos especiais variam de R$ 620 a R$ 1.250. Taxa extra apenas em domingos/feriados ou reposição durante a festa.</p>
     </section>
 
-    <section className="moments reveal" id="momentos"><div className="moment-photo"><img key={moments[moment].image} src={moments[moment].image} alt={moments[moment].alt} loading="eager" decoding="async"/><div className="moment-counter">0{moment + 1} / 04</div></div><div className="moment-copy"><p className="kicker">Cabe no seu momento</p><h2>Uma torneira.<br/>Muitos motivos<br/><i>pra brindar.</i></h2><div className="moment-tabs">{moments.map((m, i) => <button key={m.label} className={moment === i ? "active" : ""} onClick={() => setMoment(i)}><b>0{i + 1}</b><span>{m.label}</span><i>↗</i></button>)}</div><article key={moments[moment].title}><h3>{moments[moment].title}</h3><p>{moments[moment].copy}</p></article></div></section>
+    <section className="moments reveal" id="momentos"><div className="moment-photo">{moments.map((m, i) => <img key={m.image} className={moment === i ? "active" : ""} src={m.image} alt={m.alt} aria-hidden={moment !== i} loading="eager" decoding="async" fetchPriority={i === 0 ? "high" : "auto"}/>) }<div className="moment-counter">0{moment + 1} / 04</div></div><div className="moment-copy"><p className="kicker">Cabe no seu momento</p><h2>Uma torneira.<br/>Muitos motivos<br/><i>pra brindar.</i></h2><div className="moment-tabs">{moments.map((m, i) => <button key={m.label} className={moment === i ? "active" : ""} onClick={() => setMoment(i)}><b>0{i + 1}</b><span>{m.label}</span><i>↗</i></button>)}</div><article key={moments[moment].title}><h3>{moments[moment].title}</h3><p>{moments[moment].copy}</p></article></div></section>
 
     <section className="care reveal"><header><p className="kicker">Sem perrengue na festa</p><h2>Você brinda.<br/><i>A gente cuida.</i></h2><p>Não é só o barril. É a tranquilidade de receber o sistema completo, regulado e pronto para o primeiro copo.</p></header><div className="care-grid">{[
       { number: "01", icon: "barrel", title: "Cerveja da fonte", copy: "Marca própria da cervejaria. Não somos revenda." },

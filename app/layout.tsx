@@ -18,8 +18,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const host = requestHeaders.get("x-forwarded-host") || requestHeaders.get("host") || "localhost:3000";
   const protocol = requestHeaders.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
   const image = `${protocol}://${host}/og.png`;
-  const title = "Barril de Chopp para Eventos | Hoperários Cervejaria";
-  const description = "Chopp da fonte na sua festa: barril, chopeira, gás, entrega e instalação em Volta Redonda e região.";
+  const title = "Chopp Hoperários para Eventos | Volta Redonda";
+  const description = "Leve o chopp Hoperários para a sua festa: barril, chopeira, gás, entrega e instalação em Volta Redonda e região.";
   return {
     title,
     description,
